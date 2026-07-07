@@ -13,6 +13,12 @@
   box-sizing: border-box;
 }
 
+/* El display de autor (p. ej. #result { display: flex }) le gana al hidden
+   del navegador; sin esto los elementos ocultos siguen visibles. */
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -151,7 +157,7 @@ body.game h1 {
 
 body.game main {
   width: 100%;
-  max-width: 26rem;
+  max-width: 28rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -161,6 +167,8 @@ body.game main {
   background: var(--ink-2);
   border: 1px solid var(--brass-soft);
   padding: 0.6rem;
+  /* Reserva el alto (el SVG es cuadrado): sin salto de layout al cargar. */
+  aspect-ratio: 1;
 }
 
 #shape svg {
@@ -329,6 +337,35 @@ button:hover:not(:disabled) {
 #flag-grid button {
   padding: 0.45rem;
   line-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.flag-name {
+  visibility: hidden;
+  width: 100%;
+  font-size: 0.6rem;
+  line-height: 1.25;
+  letter-spacing: 0.03em;
+  text-align: center;
+  color: var(--paper-dim);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+#flag-grid.resolved .flag-name {
+  visibility: visible;
+}
+
+#flag-grid.resolved button.ok .flag-name {
+  color: var(--ok);
+}
+
+#flag-grid.resolved button.bad .flag-name {
+  color: var(--bad);
 }
 
 #flag-grid button:disabled {

@@ -1,5 +1,14 @@
-import { bearingDeg, distanceKm, loadCountries, loadShape, MAX_DISTANCE_KM, silhouettePath } from './geo';
+import {
+  bearingDeg,
+  distanceKm,
+  flagThumbUrl,
+  loadCountries,
+  loadShape,
+  MAX_DISTANCE_KM,
+  silhouettePath,
+} from './geo';
 import type { Country } from './geo';
+import type { GeoGeometryObjects } from 'd3-geo';
 
 const MAX_ATTEMPTS = 6;
 const FLAG_OPTIONS = 8;
@@ -17,6 +26,8 @@ const flagGridEl = document.querySelector<HTMLDivElement>('#flag-grid')!;
 const flagVerdictEl = document.querySelector<HTMLParagraphElement>('#flag-verdict')!;
 const againBtn = document.querySelector<HTMLButtonElement>('#btn-again')!;
 
+type Round = { country: Country; shape: Promise<GeoGeometryObjects | null> };
+
 let countries: Country[] = [];
 let normalized = new Map<Country, string>();
 let target: Country;
@@ -24,6 +35,7 @@ let guessed = new Set<string>();
 let finished = false;
 let highlighted = -1;
 let round = 0;
+let prefetched: Round | null = null;
 
 function normalize(s: string): string {
   return s
@@ -48,9 +60,16 @@ function shuffle<T>(arr: T[]): T[] {
   return arr;
 }
 
+function pickRound(): Round {
+  const country = countries[Math.floor(Math.random() * countries.length)];
+  return { country, shape: loadShape(country.iso).catch(() => null) };
+}
+
 async function newRound(): Promise<void> {
   round++;
-  target = countries[Math.floor(Math.random() * countries.length)];
+  const current = prefetched ?? pickRound();
+  prefetched = null;
+  target = current.country;
   guessed = new Set();
   finished = false;
   attemptsEl.replaceChildren();
@@ -61,15 +80,17 @@ async function newRound(): Promise<void> {
   form.hidden = false;
   input.value = '';
   hideSuggestions();
-  await renderSilhouette();
+  await renderSilhouette(current.shape);
+  // Con la ronda en marcha, se adelanta la descarga de la siguiente silueta.
+  prefetched = pickRound();
   input.focus();
 }
 
-async function renderSilhouette(): Promise<void> {
+async function renderSilhouette(shapePromise: Promise<GeoGeometryObjects | null>): Promise<void> {
   const size = 320;
   const thisRound = round;
   shapeEl.replaceChildren();
-  const shape = await loadShape(`../shapes/${target.iso}.json`);
+  const shape = (await shapePromise) ?? (await loadShape(target.iso));
   if (thisRound !== round) return;
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
@@ -164,13 +185,14 @@ function lose(): void {
   verdictEl.textContent = `Era ${target.name} `;
   const flag = document.createElement('img');
   flag.className = 'mini-flag';
-  flag.src = `../flags/${target.iso}.svg`;
+  flag.src = flagThumbUrl(target.iso);
   flag.alt = '';
   verdictEl.append(flag);
 }
 
 function startFlagRound(): void {
   flagRoundEl.hidden = false;
+  flagGridEl.classList.remove('resolved');
   const sameContinent = countries.filter((c) => c.iso !== target.iso && c.continent === target.continent);
   const others = countries.filter((c) => c.iso !== target.iso && c.continent !== target.continent);
   const pool = shuffle(sameContinent).concat(shuffle(others));
@@ -182,10 +204,11 @@ function startFlagRound(): void {
       btn.type = 'button';
       btn.dataset.iso = c.iso;
       const img = document.createElement('img');
-      img.src = `../flags/${c.iso}.svg`;
+      img.src = flagThumbUrl(c.iso);
       img.alt = 'bandera';
       img.loading = 'lazy';
-      btn.append(img);
+      // El nombre queda oculto hasta resolver: antes delataría la respuesta.
+      btn.append(img, span('flag-name', c.name));
       btn.addEventListener('click', () => pickFlag(btn, c));
       return btn;
     }),
@@ -193,6 +216,7 @@ function startFlagRound(): void {
 }
 
 function pickFlag(btn: HTMLButtonElement, picked: Country): void {
+  flagGridEl.classList.add('resolved');
   for (const b of flagGridEl.querySelectorAll('button')) {
     b.disabled = true;
     if (b.dataset.iso === target.iso) b.classList.add('ok');
@@ -233,18 +257,20 @@ form.addEventListener('submit', (e) => {
 
 input.addEventListener('blur', () => setTimeout(hideSuggestions, 150));
 
-againBtn.addEventListener('click', () => void newRound());
+function showLoadError(err: unknown): void {
+  shapeEl.textContent = 'No se pudieron cargar los datos. Recarga la página.';
+  console.error(err);
+}
 
-loadCountries('../data/countries.json')
+againBtn.addEventListener('click', () => newRound().catch(showLoadError));
+
+loadCountries()
   .then((all) => {
     countries = all;
     normalized = new Map(all.map((c) => [c, normalize(c.name)]));
     return newRound();
   })
-  .catch((err) => {
-    shapeEl.textContent = 'No se pudieron cargar los datos. Recarga la página.';
-    console.error(err);
-  });
+  .catch(showLoadError);
 
 if (import.meta.env.DEV) {
   Object.defineProperty(window, '__target', { get: () => target?.name });

@@ -10,7 +10,12 @@ Juegos de geografía en ekain.amutxastegi.com/geojuegos/.
 - **Banderas** (`/banderas/`): la bandera empieza tapada por 6 paneles (2×3);
   cada fallo destapa uno. Al acertar, cascada + confeti + ondeo; sin pistas de
   distancia. El ratio real se parsea del SVG (width/height → viewBox → 3/2).
-- Próximos: Fronteras.
+- **Fronteras** (`/fronteras/`): encadena países limítrofes por tierra de A a B;
+  al llegar, veredicto contra el óptimo (BFS) — «camino mínimo» o «+N países».
+  Solo fronteras terrestres (las islas no son extremos; A y B en la misma
+  componente conexa, óptimo en [2,6]). Mapa con zoom a la región A–B, pan/zoom
+  táctil (rueda, arrastre, pinza) y revelado progresivo; 6 intentos, deshacer y
+  3 ayudas (silueta del siguiente país, siluetas de vecinos, vecinos en el mapa).
 
 ## Datos
 
@@ -27,6 +32,16 @@ Juegos de geografía en ekain.amutxastegi.com/geojuegos/.
   - Ojo: los GeoJSON se emiten con winding `gj2008` porque d3-geo no sigue
     RFC 7946; sin eso cada país se pinta como la esfera entera (y
     `geoCentroid` da el antípoda).
+- `public/data/borders.json` — grafo de fronteras terrestres `{iso: [vecinos]}`
+  desde [mledoze/countries](https://github.com/mledoze/countries) (cca3→alpha-2,
+  filtrado a los isos de `countries.json`, simetría forzada): `npm run
+  build:borders`. Verificable con `node scripts/verify-borders.mjs` (cobertura,
+  simetría, componentes, pares jugables). Lo usa Fronteras.
+- `public/data/world.json` — FeatureCollection (un feature por `iso`) combinando
+  `public/shapes/`, resimplificada (~40%, reemitida con `gj2008`) para pesar
+  <1.5 MB: `npm run build:world`. Basemap/fuente de geometrías por país para el
+  mapa de Fronteras (que recorta cada país a su masa principal antes de
+  encuadrar, para no estirar el zoom con territorios de ultramar).
 
 Los datos generados se versionan; el deploy (GitHub Actions → Pages) solo
 ejecuta `npm run build`.
@@ -35,7 +50,10 @@ ejecuta `npm run build`.
 
 1. Copiar `siluetas/index.html` a `<juego>/index.html` (mismo `<head>`;
    cambiar title, favicon y h1).
-2. Crear `src/<juego>.ts` (importar de `geo.ts` lo que necesite).
+2. Crear `src/<juego>.ts` y reutilizar los helpers compartidos: `qs`,
+   `loadError`, `createCombobox`, `shuffle`, `span`, `normalize` (`ui.ts`);
+   `silhouetteSvg`, `silhouettePath`, `loadShape`, `distanceKm` (`geo.ts`);
+   `loadCountries`, `flagUrl`/`flagThumbUrl` (`data.ts`).
 3. Registrar la página en `vite.config.ts` → `rollupOptions.input` (si se
    olvida, el build la omite sin dar error).
 4. Activar la card en `index.html` (quitar la clase `soon`, convertir el

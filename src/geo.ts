@@ -47,3 +47,17 @@ export function silhouettePath(
   );
   return geoPath(projection)(shape) ?? '';
 }
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+// SVG cuadrado (viewBox size×size) con la silueta del país. Compartido por
+// Siluetas y las ayudas de Fronteras.
+export function silhouetteSvg(shape: GeoGeometryObjects, centroid: LonLat, size: number): SVGSVGElement {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+  svg.setAttribute('role', 'img');
+  const path = document.createElementNS(SVG_NS, 'path');
+  path.setAttribute('d', silhouettePath(shape, centroid, size, size));
+  svg.append(path);
+  return svg;
+}

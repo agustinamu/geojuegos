@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fronteras · Geojuegos</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗺️</text></svg>"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body class="game fronteras">
+    <header>
+      <a class="home" href="../" title="Geojuegos">←</a>
+      <h1>Front<em>eras</em></h1>
+      <span class="sub">de país a país</span>
+    </header>
+
+    <main>
+      <div id="map" role="img" aria-label="Mapa mundi"></div>
+
+      <p id="route" aria-label="Origen y destino"></p>
+
+      <ol id="chain" aria-label="Cadena de países"></ol>
+
+      <form id="guess-form" autocomplete="off">
+        <div id="combo">
+          <input
+            id="guess"
+            placeholder="País limítrofe…"
+            spellcheck="false"
+            autocomplete="off"
+            aria-autocomplete="list"
+          />
+          <ul id="suggestions" hidden></ul>
+        </div>
+        <button id="btn-guess" type="submit">Añadir</button>
+      </form>
+
+      <button id="btn-undo" type="button" hidden>↶ Deshacer</button>
+
+      <div id="fails" aria-label="Fallos"></div>
+
+      <!-- Persistente y fuera de #result: aria-live dentro de un contenedor hidden no anuncia. -->
+      <p id="verdict" aria-live="polite"></p>
+
+      <div id="hints">
+        <button id="hint-next" type="button">Siguiente país</button>
+        <button id="hint-neigh" type="button">Vecinos (siluetas)</button>
+        <button id="hint-map" type="button">Vecinos (mapa)</button>
+      </div>
+
+      <div id="hint-shapes" aria-label="Siluetas de ayuda"></div>
+
+      <section id="result" hidden>
+        <p id="solution"></p>
+        <button id="btn-again" type="button">Jugar otra vez</button>
+      </section>
+    </main>
+    <script type="module" src="/src/fronteras.ts"></script>
+  </body>
+</html>

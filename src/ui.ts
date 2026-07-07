@@ -1,6 +1,19 @@
 // Helpers de UI compartidos entre juegos.
 import type { Country } from './data';
 
+// querySelector tipado que falla ruidoso si el id no existe (mejor que `!`).
+export function qs<T extends Element>(selector: string): T {
+  const el = document.querySelector<T>(selector);
+  if (!el) throw new Error(`Elemento no encontrado: ${selector}`);
+  return el;
+}
+
+// Mensaje de error de carga de datos, común a los juegos.
+export function loadError(el: HTMLElement, err: unknown): void {
+  el.textContent = 'No se pudieron cargar los datos. Recarga la página.';
+  console.error(err);
+}
+
 export function normalize(s: string): string {
   return s
     .normalize('NFD')

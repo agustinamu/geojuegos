@@ -1,24 +1,24 @@
-import { bearingDeg, distanceKm, loadShape, MAX_DISTANCE_KM, silhouettePath } from './geo';
+import { bearingDeg, distanceKm, loadShape, MAX_DISTANCE_KM, silhouetteSvg } from './geo';
 import { flagThumbUrl, loadCountries } from './data';
 import type { Country } from './data';
 import type { GeoGeometryObjects } from 'd3-geo';
-import { createCombobox, shuffle, span } from './ui';
+import { createCombobox, loadError, qs, shuffle, span } from './ui';
 
 const MAX_ATTEMPTS = 6;
 const FLAG_OPTIONS = 8;
 const ARROWS = ['↑', '↗', '→', '↘', '↓', '↙', '←', '↖'];
 
-const shapeEl = document.querySelector<HTMLDivElement>('#shape')!;
-const form = document.querySelector<HTMLFormElement>('#guess-form')!;
-const input = document.querySelector<HTMLInputElement>('#guess')!;
-const suggestionsEl = document.querySelector<HTMLUListElement>('#suggestions')!;
-const attemptsEl = document.querySelector<HTMLOListElement>('#attempts')!;
-const resultEl = document.querySelector<HTMLElement>('#result')!;
-const verdictEl = document.querySelector<HTMLParagraphElement>('#verdict')!;
-const flagRoundEl = document.querySelector<HTMLDivElement>('#flag-round')!;
-const flagGridEl = document.querySelector<HTMLDivElement>('#flag-grid')!;
-const flagVerdictEl = document.querySelector<HTMLParagraphElement>('#flag-verdict')!;
-const againBtn = document.querySelector<HTMLButtonElement>('#btn-again')!;
+const shapeEl = qs<HTMLDivElement>('#shape');
+const form = qs<HTMLFormElement>('#guess-form');
+const input = qs<HTMLInputElement>('#guess');
+const suggestionsEl = qs<HTMLUListElement>('#suggestions');
+const attemptsEl = qs<HTMLOListElement>('#attempts');
+const resultEl = qs<HTMLElement>('#result');
+const verdictEl = qs<HTMLParagraphElement>('#verdict');
+const flagRoundEl = qs<HTMLDivElement>('#flag-round');
+const flagGridEl = qs<HTMLDivElement>('#flag-grid');
+const flagVerdictEl = qs<HTMLParagraphElement>('#flag-verdict');
+const againBtn = qs<HTMLButtonElement>('#btn-again');
 
 type Round = { country: Country; shape: Promise<GeoGeometryObjects | null> };
 
@@ -68,13 +68,7 @@ async function renderSilhouette(shapePromise: Promise<GeoGeometryObjects | null>
   shapeEl.replaceChildren();
   const shape = (await shapePromise) ?? (await loadShape(target.iso));
   if (thisRound !== round) return;
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
-  svg.setAttribute('role', 'img');
-  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  path.setAttribute('d', silhouettePath(shape, target.centroid, size, size));
-  svg.append(path);
-  shapeEl.replaceChildren(svg);
+  shapeEl.replaceChildren(silhouetteSvg(shape, target.centroid, size));
 }
 
 function submitGuess(country: Country): void {
@@ -168,8 +162,7 @@ function pickFlag(btn: HTMLButtonElement, picked: Country): void {
 }
 
 function showLoadError(err: unknown): void {
-  shapeEl.textContent = 'No se pudieron cargar los datos. Recarga la página.';
-  console.error(err);
+  loadError(shapeEl, err);
 }
 
 againBtn.addEventListener('click', () => newRound().catch(showLoadError));

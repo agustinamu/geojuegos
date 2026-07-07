@@ -9,6 +9,7 @@ export default defineConfig({
         main: resolve(import.meta.dirname, 'index.html'),
         siluetas: resolve(import.meta.dirname, 'siluetas/index.html'),
         banderas: resolve(import.meta.dirname, 'banderas/index.html'),
+        fronteras: resolve(import.meta.dirname, 'fronteras/index.html'),
       },
     },
   },

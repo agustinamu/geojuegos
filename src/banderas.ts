@@ -1,20 +1,20 @@
 import { fetchText, flagUrl, loadCountries } from './data';
 import type { Country } from './data';
-import { createCombobox, shuffle, span } from './ui';
+import { createCombobox, loadError, qs, shuffle, span } from './ui';
 
 const MAX_ATTEMPTS = 6;
 const PANELS = 6; // rejilla 2×3
 
-const flagBox = document.querySelector<HTMLDivElement>('#flag-box')!;
-const flagImg = document.querySelector<HTMLImageElement>('#flag')!;
-const coverEl = document.querySelector<HTMLDivElement>('#cover')!;
-const form = document.querySelector<HTMLFormElement>('#guess-form')!;
-const input = document.querySelector<HTMLInputElement>('#guess')!;
-const suggestionsEl = document.querySelector<HTMLUListElement>('#suggestions')!;
-const attemptsEl = document.querySelector<HTMLOListElement>('#attempts')!;
-const verdictEl = document.querySelector<HTMLParagraphElement>('#verdict')!;
-const resultEl = document.querySelector<HTMLElement>('#result')!;
-const againBtn = document.querySelector<HTMLButtonElement>('#btn-again')!;
+const flagBox = qs<HTMLDivElement>('#flag-box');
+const flagImg = qs<HTMLImageElement>('#flag');
+const coverEl = qs<HTMLDivElement>('#cover');
+const form = qs<HTMLFormElement>('#guess-form');
+const input = qs<HTMLInputElement>('#guess');
+const suggestionsEl = qs<HTMLUListElement>('#suggestions');
+const attemptsEl = qs<HTMLOListElement>('#attempts');
+const verdictEl = qs<HTMLParagraphElement>('#verdict');
+const resultEl = qs<HTMLElement>('#result');
+const againBtn = qs<HTMLButtonElement>('#btn-again');
 
 let countries: Country[] = [];
 let target: Country;
@@ -231,8 +231,7 @@ function confeti(): void {
 
 function showLoadError(err: unknown): void {
   verdictEl.className = 'bad';
-  verdictEl.textContent = 'No se pudieron cargar los datos. Recarga la página.';
-  console.error(err);
+  loadError(verdictEl, err);
 }
 
 againBtn.addEventListener('click', () => newRound().catch(showLoadError));

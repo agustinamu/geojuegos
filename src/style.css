@@ -564,3 +564,225 @@ button:hover:not(:disabled) {
     opacity: 0;
   }
 }
+
+/* ——— Fronteras ——— */
+
+#map {
+  position: relative; /* ancla el botón "Centrar" */
+  background: #0c1620; /* océano */
+  border: 1px solid var(--brass-soft);
+  padding: 0.4rem;
+  line-height: 0;
+}
+
+#map svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: none; /* los gestos táctiles los maneja el juego, no el navegador */
+  cursor: grab;
+}
+
+#map svg:active {
+  cursor: grabbing;
+}
+
+#btn-recenter {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  font-size: 0.72rem;
+  padding: 0.3rem 0.6rem;
+  background: var(--ink-2);
+  opacity: 0.9;
+}
+
+#btn-recenter[hidden] {
+  display: none;
+}
+
+#map .country {
+  fill: #1b2a37;
+  stroke: rgba(138, 111, 61, 0.5);
+  stroke-width: 0.75;
+  vector-effect: non-scaling-stroke;
+}
+
+#map .country.chain {
+  fill: var(--brass-soft);
+}
+
+#map .country.neighbor {
+  fill: rgba(236, 229, 211, 0.42);
+  /* Línea oscura entre vecinos contiguos: sin ella, al compartir relleno pálido
+     parecen un solo país. */
+  stroke: rgba(20, 15, 8, 0.65);
+  stroke-width: 1;
+}
+
+#map .country.a {
+  fill: var(--ok); /* origen */
+}
+
+#map .country.b {
+  fill: var(--brass); /* destino */
+}
+
+/* La punta actual: contorno claro, gane el color de relleno que gane. */
+#map .country.current {
+  stroke: var(--paper);
+  stroke-width: 1.6;
+}
+
+#route {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+#route .arrow {
+  color: var(--paper-dim);
+}
+
+#chain {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.55rem;
+  background: var(--ink-2);
+  border: 1px solid rgba(138, 111, 61, 0.5);
+  font-size: 0.78rem;
+  animation: li-in 180ms ease-out;
+}
+
+.chip.a {
+  border-color: var(--ok);
+}
+
+.chip.b {
+  border-color: var(--brass);
+}
+
+.chip.current {
+  border-color: var(--paper);
+  box-shadow: 0 0 0 1px var(--paper);
+}
+
+#fails {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--paper-dim);
+}
+
+.pip {
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 1px solid var(--brass-soft);
+  border-radius: 50%;
+}
+
+.pip.used {
+  background: var(--bad);
+  border-color: var(--bad);
+}
+
+.fails-label {
+  margin-left: 0.2rem;
+}
+
+#hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+#hints button {
+  flex: 1;
+  min-width: 8.5rem;
+  font-size: 0.76rem;
+  padding: 0.5rem 0.6rem;
+}
+
+#hint-shapes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+#hint-shapes:empty {
+  display: none;
+}
+
+.hint-shape {
+  width: 6rem;
+  height: 6rem;
+  background: var(--ink-2);
+  border: 1px solid var(--brass-soft);
+  padding: 0.3rem;
+}
+
+.hint-shape svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.hint-shape path {
+  fill: var(--brass);
+}
+
+#solution {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--paper-dim);
+}
+
+#solution:empty {
+  display: none;
+}
+
+/* El mapa es el protagonista: main más ancho solo en Fronteras y controles
+   centrados a un ancho legible; #map ocupa todo el ancho de main. */
+body.fronteras main {
+  max-width: min(60rem, 96vw);
+}
+
+body.fronteras #route,
+body.fronteras #chain,
+body.fronteras #guess-form,
+body.fronteras #fails,
+body.fronteras #verdict,
+body.fronteras #hints,
+body.fronteras #hint-shapes,
+body.fronteras #result {
+  width: 100%;
+  max-width: 30rem;
+  align-self: center;
+}
+
+#btn-undo {
+  align-self: center;
+  font-size: 0.78rem;
+  padding: 0.4rem 0.9rem;
+}
+
+#btn-undo[hidden] {
+  display: none;
+}

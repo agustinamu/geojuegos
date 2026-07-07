@@ -1,29 +1,10 @@
 import { geoAzimuthalEqualArea, geoDistance, geoPath } from 'd3-geo';
 import type { GeoGeometryObjects } from 'd3-geo';
+import { fetchJson } from './data';
+import type { LonLat } from './data';
 
-export type LonLat = [number, number];
-
-export interface Country {
-  iso: string;
-  name: string;
-  continent: string;
-  centroid: LonLat;
-}
-
-// Rutas relativas a la página: todos los juegos viven en /<juego>/, un nivel
-// bajo la raíz (base './' en vite.config.ts).
-export const flagUrl = (iso: string): string => `../flags/${iso}.svg`;
-export const flagThumbUrl = (iso: string): string => `../flags/thumb/${iso}.webp`;
-
-async function fetchJson<T>(url: string): Promise<T> {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`No se pudo cargar ${url}: ${res.status}`);
-  return res.json() as Promise<T>;
-}
-
-export function loadCountries(): Promise<Country[]> {
-  return fetchJson<Country[]>('../data/countries.json');
-}
+// Sin re-export de data.ts: los juegos importan datos de './data' y solo los
+// que proyectan geometría importan de aquí (y arrastran d3-geo).
 
 // Silueta generada por scripts/build-shapes.mjs: GeometryCollection del país.
 export function loadShape(iso: string): Promise<GeoGeometryObjects> {

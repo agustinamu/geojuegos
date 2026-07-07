@@ -1,14 +1,8 @@
-import {
-  bearingDeg,
-  distanceKm,
-  flagThumbUrl,
-  loadCountries,
-  loadShape,
-  MAX_DISTANCE_KM,
-  silhouettePath,
-} from './geo';
-import type { Country } from './geo';
+import { bearingDeg, distanceKm, loadShape, MAX_DISTANCE_KM, silhouettePath } from './geo';
+import { flagThumbUrl, loadCountries } from './data';
+import type { Country } from './data';
 import type { GeoGeometryObjects } from 'd3-geo';
+import { createCombobox, shuffle, span } from './ui';
 
 const MAX_ATTEMPTS = 6;
 const FLAG_OPTIONS = 8;
@@ -29,36 +23,19 @@ const againBtn = document.querySelector<HTMLButtonElement>('#btn-again')!;
 type Round = { country: Country; shape: Promise<GeoGeometryObjects | null> };
 
 let countries: Country[] = [];
-let normalized = new Map<Country, string>();
 let target: Country;
 let guessed = new Set<string>();
 let finished = false;
-let highlighted = -1;
 let round = 0;
 let prefetched: Round | null = null;
 
-function normalize(s: string): string {
-  return s
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .toLowerCase()
-    .trim();
-}
-
-function span(className: string, text: string): HTMLSpanElement {
-  const el = document.createElement('span');
-  el.className = className;
-  el.textContent = text;
-  return el;
-}
-
-function shuffle<T>(arr: T[]): T[] {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
+const combo = createCombobox({
+  form,
+  input,
+  list: suggestionsEl,
+  candidates: () => countries.filter((c) => !guessed.has(c.iso)),
+  onPick: submitGuess,
+});
 
 function pickRound(): Round {
   const country = countries[Math.floor(Math.random() * countries.length)];
@@ -78,8 +55,7 @@ async function newRound(): Promise<void> {
   flagGridEl.replaceChildren();
   flagVerdictEl.textContent = '';
   form.hidden = false;
-  input.value = '';
-  hideSuggestions();
+  combo.clear();
   await renderSilhouette(current.shape);
   // Con la ronda en marcha, se adelanta la descarga de la siguiente silueta.
   prefetched = pickRound();
@@ -101,49 +77,9 @@ async function renderSilhouette(shapePromise: Promise<GeoGeometryObjects | null>
   shapeEl.replaceChildren(svg);
 }
 
-function hideSuggestions(): void {
-  suggestionsEl.hidden = true;
-  suggestionsEl.replaceChildren();
-  highlighted = -1;
-}
-
-function matches(query: string): Country[] {
-  const q = normalize(query);
-  if (!q) return [];
-  const starts: Country[] = [];
-  const contains: Country[] = [];
-  for (const c of countries) {
-    if (guessed.has(c.iso)) continue;
-    const n = normalized.get(c)!;
-    if (n.startsWith(q)) starts.push(c);
-    else if (n.includes(q)) contains.push(c);
-  }
-  return [...starts, ...contains].slice(0, 8);
-}
-
-function showSuggestions(): void {
-  const list = matches(input.value);
-  if (!list.length) return hideSuggestions();
-  suggestionsEl.replaceChildren(
-    ...list.map((c, i) => {
-      const li = document.createElement('li');
-      li.textContent = c.name;
-      li.classList.toggle('active', i === highlighted);
-      li.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        submitGuess(c);
-      });
-      return li;
-    }),
-  );
-  suggestionsEl.hidden = false;
-}
-
 function submitGuess(country: Country): void {
   if (finished || guessed.has(country.iso)) return;
   guessed.add(country.iso);
-  input.value = '';
-  hideSuggestions();
 
   const li = document.createElement('li');
   if (country.iso === target.iso) {
@@ -231,32 +167,6 @@ function pickFlag(btn: HTMLButtonElement, picked: Country): void {
   }
 }
 
-input.addEventListener('input', () => {
-  highlighted = -1;
-  showSuggestions();
-});
-
-input.addEventListener('keydown', (e) => {
-  const items = suggestionsEl.querySelectorAll('li');
-  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-    e.preventDefault();
-    if (!items.length) return;
-    highlighted = (highlighted + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
-    items.forEach((li, i) => li.classList.toggle('active', i === highlighted));
-  } else if (e.key === 'Escape') {
-    hideSuggestions();
-  }
-});
-
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const list = matches(input.value);
-  if (!list.length) return;
-  submitGuess(highlighted >= 0 ? list[highlighted] : list[0]);
-});
-
-input.addEventListener('blur', () => setTimeout(hideSuggestions, 150));
-
 function showLoadError(err: unknown): void {
   shapeEl.textContent = 'No se pudieron cargar los datos. Recarga la página.';
   console.error(err);
@@ -267,7 +177,6 @@ againBtn.addEventListener('click', () => newRound().catch(showLoadError));
 loadCountries()
   .then((all) => {
     countries = all;
-    normalized = new Map(all.map((c) => [c, normalize(c.name)]));
     return newRound();
   })
   .catch(showLoadError);

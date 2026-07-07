@@ -7,8 +7,10 @@ Juegos de geografía en ekain.amutxastegi.com/geojuegos/.
 - **Siluetas** (`/siluetas/`): adivina el país por su forma en 6 intentos.
   Cada fallo indica distancia, dirección (flecha) y proximidad al país
   objetivo. Al acertar, ronda extra: elegir su bandera entre 8.
-- Próximos: Banderas (bandera tapada por rejilla 2×3 que se destapa con cada
-  fallo), Fronteras.
+- **Banderas** (`/banderas/`): la bandera empieza tapada por 6 paneles (2×3);
+  cada fallo destapa uno. Al acertar, cascada + confeti + ondeo; sin pistas de
+  distancia. El ratio real se parsea del SVG (width/height → viewBox → 3/2).
+- Próximos: Fronteras.
 
 ## Datos
 

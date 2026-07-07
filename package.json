@@ -8,7 +8,9 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "sync:data": "node scripts/sync-data.mjs && node scripts/build-flag-thumbs.mjs",
-    "build:shapes": "node scripts/build-shapes.mjs"
+    "build:shapes": "node scripts/build-shapes.mjs",
+    "build:borders": "node scripts/build-borders.mjs",
+    "build:world": "node scripts/build-world.mjs"
   },
   "dependencies": {
     "d3-geo": "^3.1.0"

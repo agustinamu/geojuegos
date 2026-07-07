@@ -1,0 +1,10 @@
+{
+  "name": "geojuegos-tools",
+  "private": true,
+  "type": "module",
+  "description": "Herramientas de preprocesado de datos (solo local, no van a producción ni al CI).",
+  "dependencies": {
+    "mapshaper": "^0.7.39",
+    "sharp": "^0.35.3"
+  }
+}

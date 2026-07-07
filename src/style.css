@@ -1,0 +1,367 @@
+:root {
+  --ink: #0b131c;
+  --ink-2: #101b27;
+  --brass: #d2a14c;
+  --brass-soft: #8a6f3d;
+  --paper: #ece5d3;
+  --paper-dim: #9a937f;
+  --ok: #7fbf7f;
+  --bad: #d47d6a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 50% -20%, rgba(210, 161, 76, 0.08), transparent 60%), var(--ink);
+  color: var(--paper);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+h1 {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+h1 em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--brass);
+}
+
+.sub {
+  font-size: 0.68rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+}
+
+/* ——— Portada ——— */
+
+body.hub {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4rem 1.5rem 3rem;
+}
+
+body.hub h1 {
+  font-size: 2.6rem;
+}
+
+body.hub .sub {
+  margin: 0.4rem 0 3rem;
+}
+
+.menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 34rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card {
+  display: block;
+  padding: 1.1rem 1.3rem;
+  background: var(--ink-2);
+  border: 1px solid var(--brass-soft);
+  color: var(--paper);
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+a.card:hover {
+  border-color: var(--brass);
+  background: rgba(210, 161, 76, 0.08);
+}
+
+.card .name {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.25rem;
+  color: var(--brass);
+}
+
+.card .desc {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  color: var(--paper-dim);
+}
+
+.card.soon {
+  opacity: 0.45;
+  border-style: dashed;
+}
+
+.back {
+  margin-top: 3rem;
+  font-size: 0.78rem;
+}
+
+.back a {
+  color: var(--paper-dim);
+  text-decoration: none;
+}
+
+.back a:hover {
+  color: var(--brass);
+}
+
+/* ——— Juego ——— */
+
+body.game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.2rem 1rem 3rem;
+}
+
+body.game header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  width: 100%;
+  max-width: 26rem;
+  margin-bottom: 1rem;
+}
+
+body.game h1 {
+  font-size: 1.7rem;
+}
+
+.home {
+  color: var(--paper-dim);
+  text-decoration: none;
+  font-size: 1.2rem;
+}
+
+.home:hover {
+  color: var(--brass);
+}
+
+body.game main {
+  width: 100%;
+  max-width: 26rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+#shape {
+  background: var(--ink-2);
+  border: 1px solid var(--brass-soft);
+  padding: 0.6rem;
+}
+
+#shape svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+#shape path {
+  fill: var(--brass);
+}
+
+#guess-form {
+  display: flex;
+  gap: 0.6rem;
+}
+
+#combo {
+  position: relative;
+  flex: 1;
+}
+
+#guess {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  background: var(--ink-2);
+  border: 1px solid var(--brass-soft);
+  color: var(--paper);
+  font: inherit;
+}
+
+#guess:focus {
+  outline: none;
+  border-color: var(--brass);
+}
+
+#suggestions {
+  position: absolute;
+  z-index: 2;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--ink-2);
+  border: 1px solid var(--brass);
+  border-top: none;
+  max-height: 14rem;
+  overflow-y: auto;
+}
+
+#suggestions li {
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+#suggestions li:hover,
+#suggestions li.active {
+  background: rgba(210, 161, 76, 0.15);
+  color: var(--brass);
+}
+
+button {
+  font: inherit;
+  padding: 0.65rem 1rem;
+  background: var(--ink-2);
+  border: 1px solid var(--brass-soft);
+  color: var(--brass);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--brass);
+  background: rgba(210, 161, 76, 0.08);
+}
+
+#attempts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  counter-reset: intento;
+}
+
+#attempts li {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.5rem 0.8rem;
+  background: var(--ink-2);
+  border: 1px solid rgba(138, 111, 61, 0.5);
+  font-size: 0.82rem;
+}
+
+#attempts li::before {
+  counter-increment: intento;
+  content: counter(intento);
+  color: var(--paper-dim);
+  font-size: 0.7rem;
+}
+
+#attempts li.hit {
+  border-color: var(--ok);
+}
+
+.g-km,
+.g-pct {
+  color: var(--paper-dim);
+  font-size: 0.75rem;
+}
+
+.g-dir {
+  color: var(--brass);
+  font-size: 1rem;
+}
+
+#result {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+#verdict {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.2rem;
+}
+
+.ok {
+  color: var(--ok);
+}
+
+.bad {
+  color: var(--bad);
+}
+
+.mini-flag {
+  height: 1em;
+  vertical-align: -0.12em;
+  border: 1px solid rgba(236, 229, 211, 0.3);
+}
+
+.flag-q {
+  margin: 0 0 0.6rem;
+  font-size: 0.85rem;
+  color: var(--paper-dim);
+}
+
+#flag-round {
+  width: 100%;
+}
+
+#flag-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+}
+
+#flag-grid button {
+  padding: 0.45rem;
+  line-height: 0;
+}
+
+#flag-grid button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+#flag-grid button.ok {
+  border-color: var(--ok);
+  opacity: 1;
+}
+
+#flag-grid button.bad {
+  border-color: var(--bad);
+  opacity: 1;
+}
+
+#flag-grid img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  /* contain: los ratios varían por país (Nepal, Suiza…) y cover recortaba. */
+  object-fit: contain;
+}
+
+#flag-verdict {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  min-height: 1.2em;
+}
+
+@media (max-width: 420px) {
+  #flag-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

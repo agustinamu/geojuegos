@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Siluetas · Geojuegos</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗺️</text></svg>"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body class="game">
+    <header>
+      <a class="home" href="../" title="Geojuegos">←</a>
+      <h1>Silu<em>etas</em></h1>
+      <span class="sub">¿qué país es?</span>
+    </header>
+
+    <main>
+      <div id="shape" aria-label="Silueta del país"></div>
+
+      <form id="guess-form" autocomplete="off">
+        <div id="combo">
+          <input
+            id="guess"
+            placeholder="Escribe un país…"
+            spellcheck="false"
+            autocomplete="off"
+            aria-autocomplete="list"
+          />
+          <ul id="suggestions" hidden></ul>
+        </div>
+        <button id="btn-guess" type="submit">Probar</button>
+      </form>
+
+      <ol id="attempts"></ol>
+
+      <section id="result" hidden>
+        <p id="verdict"></p>
+        <div id="flag-round" hidden>
+          <p class="flag-q">Y de propina… ¿cuál es su bandera?</p>
+          <div id="flag-grid"></div>
+          <p id="flag-verdict"></p>
+        </div>
+        <button id="btn-again" type="button">Jugar otra vez</button>
+      </section>
+    </main>
+    <script type="module" src="/src/siluetas.ts"></script>
+  </body>
+</html>

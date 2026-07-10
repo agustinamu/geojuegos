@@ -241,8 +241,8 @@ function initPanZoom(): void {
   mapSvg.addEventListener(
     'wheel',
     (e) => {
-      // Zoom solo con Ctrl/Cmd: la rueda sola sigue haciendo scroll de página.
-      if (!e.ctrlKey && !e.metaKey) return;
+      // Rueda directa (preferencia del dueño tras probarlo): el scroll de
+      // página se detiene sobre el mapa, a cambio de zoom sin modificador.
       e.preventDefault();
       const p = toSvg(e);
       zoomAt(p.x, p.y, e.deltaY < 0 ? 1.2 : 1 / 1.2);

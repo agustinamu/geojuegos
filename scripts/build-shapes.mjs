@@ -24,9 +24,11 @@ mkdirSync(cacheDir, { recursive: true });
 mkdirSync(path.join(root, 'public', 'data'), { recursive: true });
 
 const TARGET_VERTICES = 1200;
-// Por debajo de esto la forma de NE 10m no es fiel (microestados e islas):
-// se sustituye por la geometría OSM de geoBoundaries o Nominatim.
-const MIN_VERTICES = 40;
+// Por debajo de esto la forma de NE 10m se ve basta comparada con el resto
+// (mediana ~930 vértices; por debajo de ~300 hay una cola de microestados e
+// islas con silueta pobre): se sustituye por la geometría OSM de geoBoundaries
+// o Nominatim. El árbitro de áreas descarta los candidatos OSM malos.
+const MIN_VERTICES = 300;
 // Territorios sin entrada propia en geoBoundaries.
 const NOMINATIM_QUERIES = {
   sx: 'Sint Maarten',

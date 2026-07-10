@@ -51,11 +51,12 @@ export function silhouettePath(
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 // SVG cuadrado (viewBox size×size) con la silueta del país. Compartido por
-// Siluetas y las ayudas de Fronteras.
+// Siluetas y las ayudas de Viaje.
 export function silhouetteSvg(shape: GeoGeometryObjects, centroid: LonLat, size: number): SVGSVGElement {
   const svg = document.createElementNS(SVG_NS, 'svg');
   svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
   svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Silueta de país');
   const path = document.createElementNS(SVG_NS, 'path');
   path.setAttribute('d', silhouettePath(shape, centroid, size, size));
   svg.append(path);

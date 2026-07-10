@@ -1,3 +1,4 @@
+/* Paleta canónica definida en el repo ekain; aquí una copia local. */
 :root {
   --ink: #0b131c;
   --ink-2: #101b27;
@@ -201,7 +202,8 @@ body.game main {
 }
 
 #guess:focus {
-  outline: none;
+  outline: 2px solid var(--brass);
+  outline-offset: -1px;
   border-color: var(--brass);
 }
 
@@ -246,6 +248,11 @@ button {
 button:hover:not(:disabled) {
   border-color: var(--brass);
   background: rgba(210, 161, 76, 0.08);
+}
+
+/* Toggles (aria-pressed): el estado activo se ve sin mirar el resto de la UI. */
+button[aria-pressed="true"] {
+  border-color: var(--brass);
 }
 
 #attempts {
@@ -361,7 +368,7 @@ button:hover:not(:disabled) {
 .flag-name {
   visibility: hidden;
   width: 100%;
-  font-size: 0.6rem;
+  font-size: 0.72rem;
   line-height: 1.25;
   letter-spacing: 0.03em;
   text-align: center;
@@ -565,21 +572,29 @@ button:hover:not(:disabled) {
   }
 }
 
-/* ——— Fronteras ——— */
+/* ——— Viaje ——— */
 
 #map {
   position: relative; /* ancla el botón "Centrar" */
-  background: #0c1620; /* océano */
+  background: #0e1822; /* océano */
   border: 1px solid var(--brass-soft);
   padding: 0.4rem;
-  line-height: 0;
+  /* Reserva el alto (viewBox 960×620): sin salto de layout al cargar. El ratio
+     debe actuar sobre el content-box (donde vive el svg), no sobre el border-box
+     que impone el box-sizing global: si no, padding y borde añaden ~5px al llegar
+     el svg. content-box + width que descuenta padding (2×0.4rem) y borde (2×1px). */
+  box-sizing: content-box;
+  width: calc(100% - 0.8rem - 2px);
+  aspect-ratio: 960 / 620;
 }
 
 #map svg {
   display: block;
   width: 100%;
   height: auto;
-  touch-action: none; /* los gestos táctiles los maneja el juego, no el navegador */
+  /* pan-y sin pinch-zoom: el swipe de un dedo hace scroll de página, y la pinza
+     de dos dedos llega al juego (con pinch-zoom la capturaría el navegador). */
+  touch-action: pan-y;
   cursor: grab;
 }
 
@@ -602,7 +617,7 @@ button:hover:not(:disabled) {
 }
 
 #map .country {
-  fill: #1b2a37;
+  fill: #2b3a47;
   stroke: rgba(138, 111, 61, 0.5);
   stroke-width: 0.75;
   vector-effect: non-scaling-stroke;
@@ -758,20 +773,20 @@ button:hover:not(:disabled) {
   display: none;
 }
 
-/* El mapa es el protagonista: main más ancho solo en Fronteras y controles
+/* El mapa es el protagonista: main más ancho solo en Viaje y controles
    centrados a un ancho legible; #map ocupa todo el ancho de main. */
-body.fronteras main {
+body.viaje main {
   max-width: min(60rem, 96vw);
 }
 
-body.fronteras #route,
-body.fronteras #chain,
-body.fronteras #guess-form,
-body.fronteras #fails,
-body.fronteras #verdict,
-body.fronteras #hints,
-body.fronteras #hint-shapes,
-body.fronteras #result {
+body.viaje #route,
+body.viaje #chain,
+body.viaje #guess-form,
+body.viaje #fails,
+body.viaje #verdict,
+body.viaje #hints,
+body.viaje #hint-shapes,
+body.viaje #result {
   width: 100%;
   max-width: 30rem;
   align-self: center;

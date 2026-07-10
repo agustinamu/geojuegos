@@ -3,11 +3,13 @@ import { readFileSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { geoArea } from 'd3-geo';
+import { feature } from 'topojson-client';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const countries = JSON.parse(readFileSync(resolve(root, 'public/data/countries.json'), 'utf8'));
 const borders = JSON.parse(readFileSync(resolve(root, 'public/data/borders.json'), 'utf8'));
-const world = JSON.parse(readFileSync(resolve(root, 'public/data/world.json'), 'utf8'));
+const worldTopo = JSON.parse(readFileSync(resolve(root, 'public/data/world.json'), 'utf8'));
+const world = feature(worldTopo, worldTopo.objects.countries);
 
 const name = Object.fromEntries(countries.map((c) => [c.iso, c.name]));
 const allIsos = countries.map((c) => c.iso);

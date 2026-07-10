@@ -54,6 +54,8 @@ async function newRound(): Promise<void> {
   flagRoundEl.hidden = true;
   flagGridEl.replaceChildren();
   flagVerdictEl.textContent = '';
+  verdictEl.replaceChildren();
+  verdictEl.className = '';
   form.hidden = false;
   combo.clear();
   await renderSilhouette(current.shape);
@@ -105,6 +107,7 @@ function win(): void {
   verdictEl.className = 'ok';
   verdictEl.textContent = `¡Es ${target.name}! Acertado en ${guessed.size} de ${MAX_ATTEMPTS}.`;
   startFlagRound();
+  flagGridEl.querySelector<HTMLButtonElement>('button')?.focus();
 }
 
 function lose(): void {
@@ -118,6 +121,7 @@ function lose(): void {
   flag.src = flagThumbUrl(target.iso);
   flag.alt = '';
   verdictEl.append(flag);
+  againBtn.focus(); // el input queda oculto: sin esto el foco cae a body
 }
 
 function startFlagRound(): void {
@@ -129,13 +133,16 @@ function startFlagRound(): void {
   const options = shuffle([target, ...pool.slice(0, FLAG_OPTIONS - 1)]);
 
   flagGridEl.replaceChildren(
-    ...options.map((c) => {
+    ...options.map((c, i) => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.dataset.iso = c.iso;
+      // Nombre accesible numerado: el real (span.flag-name) queda oculto
+      // hasta resolver, así que sin esto las 8 opciones son indistinguibles.
+      btn.setAttribute('aria-label', `Opción ${i + 1} de ${FLAG_OPTIONS}`);
       const img = document.createElement('img');
       img.src = flagThumbUrl(c.iso);
-      img.alt = 'bandera';
+      img.alt = '';
       img.loading = 'lazy';
       // El nombre queda oculto hasta resolver: antes delataría la respuesta.
       btn.append(img, span('flag-name', c.name));
@@ -149,6 +156,8 @@ function pickFlag(btn: HTMLButtonElement, picked: Country): void {
   flagGridEl.classList.add('resolved');
   for (const b of flagGridEl.querySelectorAll('button')) {
     b.disabled = true;
+    // El nombre ya es visible: el aria-label numerado dejaría de tener sentido.
+    b.removeAttribute('aria-label');
     if (b.dataset.iso === target.iso) b.classList.add('ok');
   }
   if (picked.iso === target.iso) {
@@ -159,6 +168,7 @@ function pickFlag(btn: HTMLButtonElement, picked: Country): void {
     flagVerdictEl.className = 'bad';
     flagVerdictEl.textContent = `No: esa es la de ${picked.name}.`;
   }
+  againBtn.focus(); // el botón enfocado se acaba de deshabilitar: sin esto el foco cae a body
 }
 
 function showLoadError(err: unknown): void {

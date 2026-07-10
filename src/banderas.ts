@@ -16,6 +16,8 @@ const verdictEl = qs<HTMLParagraphElement>('#verdict');
 const resultEl = qs<HTMLElement>('#result');
 const againBtn = qs<HTMLButtonElement>('#btn-again');
 
+type Round = { country: Country; svgText: Promise<string | null> };
+
 let countries: Country[] = [];
 let target: Country;
 let guessed = new Set<string>();
@@ -24,6 +26,7 @@ let fails = 0;
 let revealOrder: number[] = []; // permutación de [0..5], orden de destape
 let panels: HTMLDivElement[] = [];
 let round = 0; // token anti-carreras: cada await/setTimeout captura y compara
+let prefetched: Round | null = null;
 
 const reduced = (): boolean => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -53,6 +56,11 @@ function flagRatio(svgText: string): number {
   return 3 / 2; // último recurso: deforma levemente, nunca destapa
 }
 
+function pickRound(): Round {
+  const country = countries[Math.floor(Math.random() * countries.length)];
+  return { country, svgText: fetchText(flagUrl(country.iso)).catch(() => null) };
+}
+
 // load/error clásicos: img.decode() se comporta irregular con SVG en Safari.
 function loadImg(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -66,7 +74,9 @@ async function newRound(): Promise<void> {
   const thisRound = ++round;
   againBtn.disabled = true;
   document.querySelector('#confetti')?.remove();
-  target = countries[Math.floor(Math.random() * countries.length)];
+  const current = prefetched ?? pickRound();
+  prefetched = null;
+  target = current.country;
   guessed = new Set();
   fails = 0;
   finished = false;
@@ -87,10 +97,10 @@ async function newRound(): Promise<void> {
   form.hidden = false;
   combo.clear();
   input.disabled = true; // sin intentos hasta que la bandera esté lista
-  const url = flagUrl(target.iso);
   try {
     // Una sola descarga: el mismo texto da el ratio y, vía blob, la imagen.
-    const svgText = await fetchText(url);
+    // Si el prefetch falló (o no había), se reintenta aquí y el catch lo cubre.
+    const svgText = (await current.svgText) ?? (await fetchText(flagUrl(target.iso)));
     if (thisRound !== round) return;
     flagBox.style.setProperty('--flag-ratio', String(flagRatio(svgText)));
     const blobUrl = URL.createObjectURL(new Blob([svgText], { type: 'image/svg+xml' }));
@@ -112,6 +122,8 @@ async function newRound(): Promise<void> {
   }
   input.disabled = false;
   input.focus();
+  // Con la ronda en marcha, se adelanta la descarga de la siguiente bandera.
+  prefetched = pickRound();
 }
 
 function submitGuess(country: Country): void {

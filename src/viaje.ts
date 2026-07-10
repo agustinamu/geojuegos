@@ -2,6 +2,8 @@ import { fetchJson, flagThumbUrl, loadCountries } from './data';
 import type { Country } from './data';
 import { loadShape, silhouetteSvg } from './geo';
 import { geoArea, geoBounds, geoCentroid, geoDistance, geoNaturalEarth1, geoPath } from 'd3-geo';
+import { feature } from 'topojson-client';
+import type { Topology } from 'topojson-specification';
 import type { Feature, FeatureCollection, Geometry } from 'geojson';
 import { createCombobox, loadError, qs, span } from './ui';
 
@@ -176,6 +178,7 @@ function initMap(world: WorldFC): void {
   mapSvg = document.createElementNS(SVG_NS, 'svg');
   mapSvg.setAttribute('viewBox', `0 0 ${MAP_W} ${MAP_H}`);
   mapSvg.setAttribute('role', 'img');
+  mapSvg.setAttribute('aria-label', 'Mapa mundi');
   // Los países cuelgan de un <g> con transform de vista (zoom/desplazamiento).
   mapG = document.createElementNS(SVG_NS, 'g');
   mapSvg.append(mapG);
@@ -238,6 +241,8 @@ function initPanZoom(): void {
   mapSvg.addEventListener(
     'wheel',
     (e) => {
+      // Zoom solo con Ctrl/Cmd: la rueda sola sigue haciendo scroll de página.
+      if (!e.ctrlKey && !e.metaKey) return;
       e.preventDefault();
       const p = toSvg(e);
       zoomAt(p.x, p.y, e.deltaY < 0 ? 1.2 : 1 / 1.2);
@@ -255,6 +260,8 @@ function initPanZoom(): void {
     const cur = toSvg(e);
     pointers.set(e.pointerId, cur);
     if (pointers.size === 1) {
+      // Un dedo no panea (touch-action: pan-y deja ese gesto al scroll de página).
+      if (e.pointerType === 'touch') return;
       view.x += cur.x - prev.x; // desplazar
       view.y += cur.y - prev.y;
       applyView();
@@ -465,10 +472,9 @@ function submitGuess(country: Country): void {
 
   // País contiguo: avanza la cadena (aunque no sea el óptimo).
   chain.push(iso);
-  neighborsShown = false;
   hintShapesEl.replaceChildren();
   renderChain();
-  renderMap();
+  setNeighborsShown(false); // también redibuja el mapa
 
   if (iso === dest) {
     win();
@@ -483,10 +489,9 @@ function submitGuess(country: Country): void {
 function undo(): void {
   if (finished || chain.length <= 1) return;
   chain.pop();
-  neighborsShown = false;
   hintShapesEl.replaceChildren();
   renderChain();
-  renderMap();
+  setNeighborsShown(false); // también redibuja el mapa
   const currentName = countryByIso.get(chain[chain.length - 1])!.name;
   msg(`Deshecho. Ahora limita desde ${currentName}.`, '');
   input.focus();
@@ -511,11 +516,11 @@ function win(): void {
   const steps = chain.length - 1;
   const extra = steps - optimal;
   if (extra === 0) {
-    msg(`¡Camino mínimo! ${steps} ${steps === 1 ? 'paso' : 'pasos'}.`, 'ok');
+    msg(`¡Camino más corto! Lo lograste en ${steps} países.`, 'ok');
     solutionEl.textContent = '';
   } else {
-    msg(`Llegaste en ${steps} pasos: +${extra} ${extra === 1 ? 'país' : 'países'} respecto al mínimo.`, 'ok');
-    solutionEl.textContent = routeText(`Una ruta mínima (${optimal}): `, bfsPath(origin, dest));
+    msg(`Llegaste en ${steps} países, ${extra} más que el camino más corto (${optimal}).`, 'ok');
+    solutionEl.textContent = routeText(`El camino más corto (${optimal} países): `, bfsPath(origin, dest));
   }
   endRound();
 }
@@ -524,7 +529,7 @@ function lose(): void {
   const currentName = countryByIso.get(chain[chain.length - 1])!.name;
   const destName = countryByIso.get(dest)!.name;
   msg(`Sin intentos. Faltaba llegar a ${destName} desde ${currentName}.`, 'bad');
-  solutionEl.textContent = routeText(`Una ruta mínima (${optimal}): `, bfsPath(origin, dest));
+  solutionEl.textContent = routeText(`El camino más corto (${optimal} países): `, bfsPath(origin, dest));
   endRound();
 }
 
@@ -540,11 +545,15 @@ async function showSilhouettes(isos: string[]): Promise<void> {
     return { iso, fig };
   });
   hintShapesEl.replaceChildren(...figs.map((f) => f.fig));
-  for (const { iso, fig } of figs) {
+  // Descargas en paralelo; el await en orden mantiene el pintado estable.
+  const loads = figs.map(({ iso }) => loadShape(iso));
+  // Si otra ayuda corta el bucle (token), que ningún rechazo quede sin handler.
+  for (const p of loads) p.catch(() => {});
+  for (const [i, { iso, fig }] of figs.entries()) {
     const country = countryByIso.get(iso);
     if (!country) continue;
     try {
-      const shape = await loadShape(iso);
+      const shape = await loads[i];
       if (token !== hintToken) return; // llegó otra ayuda o ronda nueva
       fig.replaceChildren(silhouetteSvg(shape, country.centroid, size));
     } catch {
@@ -574,11 +583,18 @@ function hintNeighbors(): void {
   void showSilhouettes([...(graph.get(current) ?? [])]);
 }
 
+// Estado del toggle "Vecinos (mapa)": variable, aria-pressed del botón y
+// redibujo van siempre juntos, o el botón mentiría sobre el mapa.
+function setNeighborsShown(v: boolean): void {
+  neighborsShown = v;
+  hintMapBtn.setAttribute('aria-pressed', String(v));
+  renderMap();
+}
+
 // Ayuda 3: resalta en el mapa los vecinos del país actual (conmutable).
 function hintMap(): void {
   if (finished) return;
-  neighborsShown = !neighborsShown;
-  renderMap();
+  setNeighborsShown(!neighborsShown);
 }
 
 // —— Ciclo de ronda ——
@@ -591,7 +607,6 @@ function newRound(): void {
   chain = [origin];
   fails = 0;
   finished = false;
-  neighborsShown = false;
   hintToken++;
   hintShapesEl.replaceChildren();
   solutionEl.textContent = '';
@@ -605,8 +620,8 @@ function newRound(): void {
   renderRoute();
   renderChain();
   renderFails();
-  renderMap();
-  msg(`Encadena países limítrofes desde ${countryByIso.get(origin)!.name} hasta ${countryByIso.get(dest)!.name}. Mínimo: ${optimal} pasos.`, '');
+  setNeighborsShown(false); // también redibuja el mapa
+  msg(`Encadena países limítrofes desde ${countryByIso.get(origin)!.name} hasta ${countryByIso.get(dest)!.name}: el camino más corto son ${optimal} países.`, '');
   input.focus();
 }
 
@@ -623,9 +638,11 @@ againBtn.addEventListener('click', newRound);
 Promise.all([
   loadCountries(),
   fetchJson<Record<string, string[]>>('../data/borders.json'),
-  fetchJson<WorldFC>('../data/world.json'),
+  // TopoJSON (objeto "countries"): deduplica arcos compartidos entre vecinos.
+  fetchJson<Topology>('../data/world.json'),
 ])
-  .then(([allCountries, borders, world]) => {
+  .then(([allCountries, borders, topo]) => {
+    const world = feature(topo, topo.objects.countries) as WorldFC;
     countries = allCountries;
     for (const c of countries) countryByIso.set(c.iso, c);
     buildGraph(borders);

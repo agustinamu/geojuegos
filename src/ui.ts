@@ -50,6 +50,28 @@ export function createCombobox(opts: ComboboxOpts): { clear(): void } {
   const { form, input, list, candidates, onPick } = opts;
   let highlighted = -1;
 
+  // Semántica ARIA del patrón combobox (cubre los tres juegos desde aquí).
+  input.setAttribute('role', 'combobox');
+  input.setAttribute('aria-expanded', 'false');
+  input.setAttribute('aria-controls', list.id);
+  list.setAttribute('role', 'listbox');
+
+  function optionId(i: number): string {
+    return `${list.id}-opt-${i}`;
+  }
+
+  // Sincroniza .active con aria-selected y aria-activedescendant.
+  function setHighlight(i: number): void {
+    highlighted = i;
+    list.querySelectorAll('li').forEach((li, idx) => {
+      const active = idx === i;
+      li.classList.toggle('active', active);
+      li.setAttribute('aria-selected', String(active));
+    });
+    if (i >= 0) input.setAttribute('aria-activedescendant', optionId(i));
+    else input.removeAttribute('aria-activedescendant');
+  }
+
   function matches(query: string): Country[] {
     const q = normalize(query);
     if (!q) return [];
@@ -67,6 +89,8 @@ export function createCombobox(opts: ComboboxOpts): { clear(): void } {
     list.hidden = true;
     list.replaceChildren();
     highlighted = -1;
+    input.setAttribute('aria-expanded', 'false');
+    input.removeAttribute('aria-activedescendant');
   }
 
   function pick(c: Country): void {
@@ -78,11 +102,17 @@ export function createCombobox(opts: ComboboxOpts): { clear(): void } {
   function show(): void {
     const items = matches(input.value);
     if (!items.length) return hide();
+    // items[0] resaltado: lo que Enter enviará por defecto siempre es visible.
+    highlighted = 0;
     list.replaceChildren(
       ...items.map((c, i) => {
         const li = document.createElement('li');
+        li.id = optionId(i);
+        li.setAttribute('role', 'option');
         li.textContent = c.name;
-        li.classList.toggle('active', i === highlighted);
+        const active = i === highlighted;
+        li.classList.toggle('active', active);
+        li.setAttribute('aria-selected', String(active));
         li.addEventListener('pointerdown', (e) => {
           e.preventDefault();
           pick(c);
@@ -91,10 +121,11 @@ export function createCombobox(opts: ComboboxOpts): { clear(): void } {
       }),
     );
     list.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
+    input.setAttribute('aria-activedescendant', optionId(highlighted));
   }
 
   input.addEventListener('input', () => {
-    highlighted = -1;
     show();
   });
 
@@ -103,8 +134,7 @@ export function createCombobox(opts: ComboboxOpts): { clear(): void } {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
       if (!items.length) return;
-      highlighted = (highlighted + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
-      items.forEach((li, i) => li.classList.toggle('active', i === highlighted));
+      setHighlight((highlighted + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length);
     } else if (e.key === 'Escape') {
       hide();
     }

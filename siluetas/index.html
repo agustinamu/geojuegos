@@ -24,7 +24,7 @@
     </header>
 
     <main>
-      <div id="shape" aria-label="Silueta del país"></div>
+      <div id="shape"></div>
 
       <form id="guess-form" autocomplete="off">
         <div id="combo">
@@ -42,12 +42,14 @@
 
       <ol id="attempts"></ol>
 
+      <!-- Persistente y fuera de #result: aria-live dentro de un contenedor hidden no anuncia. -->
+      <p id="verdict" aria-live="polite"></p>
+
       <section id="result" hidden>
-        <p id="verdict"></p>
         <div id="flag-round" hidden>
           <p class="flag-q">Y de propina… ¿cuál es su bandera?</p>
           <div id="flag-grid"></div>
-          <p id="flag-verdict"></p>
+          <p id="flag-verdict" aria-live="polite"></p>
         </div>
         <button id="btn-again" type="button">Jugar otra vez</button>
       </section>

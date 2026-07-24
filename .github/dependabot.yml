@@ -4,12 +4,27 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # No adoptar versiones recién publicadas: da margen a que se detecte una
+    # versión comprometida antes de instalarla. No afecta a los parches de
+    # seguridad (esos se aplican sin espera).
+    cooldown:
+      default-days: 5
+      semver-major-days: 14
+      semver-minor-days: 7
+      semver-patch-days: 3
     groups:
       # Un solo PR semanal con todas las actualizaciones menores/patch.
       dependencias:
+        applies-to: version-updates
         update-types: [minor, patch]
+      # Agrupa también los parches de seguridad (por defecto llegan sueltos).
+      seguridad:
+        applies-to: security-updates
+        patterns: ["*"]
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7

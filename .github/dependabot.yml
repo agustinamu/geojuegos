@@ -1,7 +1,8 @@
 version: 2
 updates:
   - package-ecosystem: npm
-    directory: /
+    # scripts/ tiene su propio package.json (mapshaper, sharp: tooling local).
+    directories: ["/", "/scripts"]
     schedule:
       interval: weekly
     # No adoptar versiones recién publicadas: da margen a que se detecte una

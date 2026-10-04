@@ -70,5 +70,9 @@ npm install
 npm run dev
 ```
 
+Los scripts de datos (`build:*`) usan mapshaper y sharp desde su propio
+`scripts/package.json`, que el CI no instala. Antes del primer `build:*`:
+`npm --prefix scripts install`.
+
 Si se regenera `public/` (shapes, thumbs) con el dev server arrancado, la
 caché de públicos de Vite se queda obsoleta: reiniciar `npm run dev`.

@@ -7,14 +7,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Mínimo para todos los jobs; deploy amplía lo suyo (así los PRs no reciben
+# permiso de escritura en Pages).
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
 
 jobs:
   # Revisa dependencias que introduzca un PR y bloquea las que traigan
@@ -54,6 +50,14 @@ jobs:
     if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    # Serializa solo los despliegues y no cancela uno en curso. A nivel de
+    # workflow el grupo único hacía que PRs y pushes se cancelaran entre sí.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

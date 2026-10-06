@@ -4,7 +4,7 @@
   "type": "module",
   "description": "Herramientas de preprocesado de datos (solo local, no van a producción ni al CI).",
   "dependencies": {
-    "mapshaper": "^0.7.68",
-    "sharp": "^0.35.4"
+    "mapshaper": "^0.7.70",
+    "sharp": "^0.35.5"
   }
 }

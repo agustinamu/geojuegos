@@ -368,9 +368,16 @@ button[aria-pressed="true"]:hover:not(:disabled) {
   font-size: 0.75rem;
 }
 
+/* Archivo (subset latin de Google Fonts) solo trae ↑↓: las demás flechas caían
+   en fuentes distintas y cada fila medía distinto. Las ocho de una misma fuente
+   de sistema y en caja fija, para que no bailen ni el alto ni el ancho. */
 .g-dir {
   color: var(--accent);
+  font-family: 'DejaVu Sans', 'Segoe UI Symbol', 'Apple Symbols', sans-serif;
   font-size: 1rem;
+  line-height: 1;
+  min-width: 1em;
+  text-align: center;
 }
 
 #result {

@@ -234,6 +234,7 @@ body.game main {
   border: 1.5px solid var(--line);
   color: var(--text);
   font: inherit;
+  line-height: 1.3; /* ver button */
 }
 
 #guess::placeholder {
@@ -280,8 +281,11 @@ body.game main {
   color: var(--bg);
 }
 
+/* line-height explícito: el normal de Archivo es ~1 y los controles perdían
+   3px con el cambio de fuente; con 1.3 no bajan de lo que medían (§8 táctil). */
 button {
   font: inherit;
+  line-height: 1.3;
   font-weight: 600;
   font-stretch: 112%;
   padding: 0.65rem 1rem;

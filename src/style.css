@@ -1,6 +1,6 @@
-/* Estilo «pizarra cartográfica»: tokens por rol, canónicos en el repo ekain
-   (docs/guia-estilo.md); aquí una copia local. Contrastes medidos sobre
-   --bg / --surface. */
+/* Estilo «pizarra cartográfica»: tokens por rol, canónicos en la guía de estilo
+   del portal (repo privado ekain-docs); aquí una copia local. Contrastes
+   medidos sobre --bg / --surface. */
 :root {
   color-scheme: dark; /* controles y scrollbars nativos en oscuro */
   --bg: #1e2925; /* fondo de página */
@@ -664,7 +664,8 @@ button[aria-pressed="true"]:hover:not(:disabled) {
 /* ——— Viaje ——— */
 
 #map {
-  /* Tokens de mapa: locales, solo donde hay mapa (valores de la guía de ekain). */
+  /* Tokens de mapa: locales, solo donde hay mapa (valores de la guía de estilo
+     del portal, repo privado ekain-docs). */
   --ocean: #16201c; /* mar y fondo del mapa */
   --land: #3a4a42;
   --border: #1e2925; /* fronteras */

@@ -456,7 +456,6 @@ button[aria-pressed="true"]:hover:not(:disabled) {
   font-weight: 400;
   font-stretch: 100%;
   line-height: 1.25;
-  letter-spacing: 0.03em;
   text-align: center;
   color: var(--text-dim);
   overflow: hidden;
@@ -613,7 +612,7 @@ button[aria-pressed="true"]:hover:not(:disabled) {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(100deg, transparent 35%, rgba(255, 255, 255, 0.09) 50%, transparent 65%);
+    background: linear-gradient(100deg, transparent 35%, rgba(241, 239, 230, 0.09) 50%, transparent 65%);
     background-size: 250% 100%;
     animation: brillo 4s ease-in-out infinite;
   }

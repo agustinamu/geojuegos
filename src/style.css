@@ -297,9 +297,11 @@ button {
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 
+/* Tinte apilado sobre la superficie: el rgba suelto sustituía a --surface y el
+   botón se oscurecía al pasar el ratón (#2d302a frente a #2a3732). */
 button:hover:not(:disabled) {
   border-color: var(--accent);
-  background: rgba(var(--accent-rgb), 0.08);
+  background: linear-gradient(rgba(var(--accent-rgb), 0.08), rgba(var(--accent-rgb), 0.08)), var(--surface);
 }
 
 /* Acción destacada (enviar intento, jugar otra vez): acento en borde y texto,

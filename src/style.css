@@ -13,6 +13,7 @@
   --accent-rgb: 232, 134, 107; /* translúcidos: rgba(var(--accent-rgb), α) */
   --ok: #8cc08a; /* acierto / origen: 7,2 / 5,9 */
   --bad: #ff9fb5; /* fallo: 7,8 / 6,4; siempre con texto o ✗ (no solo color) */
+  --sky: #9fd0e8; /* segundo color de datos; aquí solo confeti: 9,1 / 7,5 */
   --sun: #f2d675; /* realce puntual (confeti) */
   --sans: 'Archivo', system-ui, sans-serif;
   --serif: 'Instrument Serif', Georgia, serif; /* solo itálica: es lo único que se carga */

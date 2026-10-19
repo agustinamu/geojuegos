@@ -205,8 +205,9 @@ function lose(): void {
 }
 
 // Tokens de style.css (las piezas cuelgan del documento y heredan :root): el
-// confeti sigue a la paleta sin duplicar valores aquí.
-const COLORS = ['var(--accent)', 'var(--text)', 'var(--ok)', 'var(--bad)', 'var(--sun)'];
+// confeti sigue a la paleta sin duplicar valores aquí. Sin --bad: es el color
+// de fallo y no pinta en una victoria.
+const COLORS = ['var(--accent)', 'var(--text)', 'var(--ok)', 'var(--sky)', 'var(--sun)'];
 
 // Confeti con WAAPI: dos ráfagas desde las esquinas inferiores de la bandera.
 function confeti(): void {

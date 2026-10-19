@@ -475,17 +475,19 @@ button[aria-pressed="true"]:hover:not(:disabled) {
 
 #flag-grid button:disabled {
   cursor: default;
+}
+
+/* Se atenúa solo la imagen: con el botón entero el nombre quedaba a 3:1. */
+#flag-grid button:disabled:not(.ok, .bad) img {
   opacity: 0.55;
 }
 
 #flag-grid button.ok {
   border-color: var(--ok);
-  opacity: 1;
 }
 
 #flag-grid button.bad {
   border-color: var(--bad);
-  opacity: 1;
 }
 
 #flag-grid img {

@@ -1,13 +1,21 @@
-/* Paleta canónica definida en el repo ekain; aquí una copia local. */
+/* Estilo «pizarra cartográfica»: tokens por rol, canónicos en el repo ekain
+   (docs/guia-estilo.md); aquí una copia local. Contrastes medidos sobre
+   --bg / --surface. */
 :root {
-  --ink: #0b131c;
-  --ink-2: #101b27;
-  --brass: #d2a14c;
-  --brass-soft: #8a6f3d;
-  --paper: #ece5d3;
-  --paper-dim: #9a937f;
-  --ok: #7fbf7f;
-  --bad: #d47d6a;
+  color-scheme: dark; /* controles y scrollbars nativos en oscuro */
+  --bg: #1e2925; /* fondo de página */
+  --surface: #2a3732; /* tarjetas, inputs, barras, paneles */
+  --text: #f1efe6; /* 13,0 / 10,8 */
+  --text-dim: #b7bdb3; /* 7,8 / 6,5 */
+  --line: #b7bdb3; /* bordes en reposo */
+  --line-soft: rgba(241, 239, 230, 0.25); /* separadores internos */
+  --accent: #e8866b; /* coral: 5,8 / 4,8 */
+  --accent-rgb: 232, 134, 107; /* translúcidos: rgba(var(--accent-rgb), α) */
+  --ok: #8cc08a; /* acierto / origen: 7,2 / 5,9 */
+  --bad: #ff9fb5; /* fallo: 7,8 / 6,4; siempre con texto o ✗ (no solo color) */
+  --sun: #f2d675; /* realce puntual (confeti) */
+  --sans: 'Archivo', system-ui, sans-serif;
+  --serif: 'Instrument Serif', Georgia, serif; /* solo itálica: es lo único que se carga */
 }
 
 * {
@@ -23,42 +31,63 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: radial-gradient(ellipse at 50% -20%, rgba(210, 161, 76, 0.08), transparent 60%), var(--ink);
-  color: var(--paper);
-  font-family: 'IBM Plex Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+}
+
+/* Foco visible común a enlaces, tarjetas y botones; el input lo mete hacia
+   dentro (ver #guess:focus) para no chocar con el botón contiguo. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 h1 {
   margin: 0;
-  font-family: 'Fraunces', Georgia, serif;
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  font-weight: 800;
+  font-stretch: 118%;
+  letter-spacing: -0.01em;
 }
 
-h1 em {
+/* Wordmark: la parte en acento, en Instrument Serif itálica. Es decoración,
+   por eso span.accent y no em. */
+.accent {
+  font-family: var(--serif);
   font-style: italic;
-  font-weight: 300;
-  color: var(--brass);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--accent);
 }
 
 .sub {
-  font-size: 0.68rem;
-  letter-spacing: 0.34em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-stretch: 112%;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--paper-dim);
+  color: var(--text-dim);
 }
 
 /* ——— Portada ——— */
 
+/* Cuadrícula de meridianos: solo en portadas y hubs; las apps van en liso. */
 body.hub {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 4rem 1.5rem 3rem;
+  background-image:
+    linear-gradient(rgba(241, 239, 230, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(241, 239, 230, 0.06) 1px, transparent 1px);
+  background-size: 96px 96px;
 }
 
 body.hub h1 {
-  font-size: 2.6rem;
+  font-size: 3rem;
+  font-weight: 900;
+  font-stretch: 125%;
+  letter-spacing: -0.02em;
 }
 
 body.hub .sub {
@@ -79,30 +108,34 @@ body.hub .sub {
 .card {
   display: block;
   padding: 1.1rem 1.3rem;
-  background: var(--ink-2);
-  border: 1px solid var(--brass-soft);
-  color: var(--paper);
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  color: var(--text);
   text-decoration: none;
   transition: border-color 0.15s, background 0.15s;
 }
 
-a.card:hover {
-  border-color: var(--brass);
-  background: rgba(210, 161, 76, 0.08);
+/* Tinte sobre la superficie opaca: un rgba suelto dejaría ver la cuadrícula
+   de meridianos a través de la tarjeta. */
+a.card:hover,
+a.card:focus-visible {
+  border-color: var(--accent);
+  background: linear-gradient(rgba(var(--accent-rgb), 0.08), rgba(var(--accent-rgb), 0.08)), var(--surface);
 }
 
 .card .name {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: 1.25rem;
-  color: var(--brass);
+  font-size: 1.45rem;
+  font-weight: 800;
+  font-stretch: 118%;
+  letter-spacing: -0.01em;
 }
 
 .card .desc {
   display: block;
   margin-top: 0.35rem;
-  font-size: 0.74rem;
-  letter-spacing: 0.04em;
-  color: var(--paper-dim);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-dim);
 }
 
 .card.soon {
@@ -116,12 +149,13 @@ a.card:hover {
 }
 
 .back a {
-  color: var(--paper-dim);
+  color: var(--text-dim);
   text-decoration: none;
 }
 
-.back a:hover {
-  color: var(--brass);
+.back a:hover,
+.back a:focus-visible {
+  color: var(--accent);
 }
 
 /* ——— Juego ——— */
@@ -147,13 +181,14 @@ body.game h1 {
 }
 
 .home {
-  color: var(--paper-dim);
+  color: var(--text-dim);
   text-decoration: none;
   font-size: 1.2rem;
 }
 
-.home:hover {
-  color: var(--brass);
+.home:hover,
+.home:focus-visible {
+  color: var(--accent);
 }
 
 body.game main {
@@ -165,8 +200,8 @@ body.game main {
 }
 
 #shape {
-  background: var(--ink-2);
-  border: 1px solid var(--brass-soft);
+  background: var(--surface);
+  border: 1.5px solid var(--line);
   padding: 0.6rem;
   /* Reserva el alto (el SVG es cuadrado): sin salto de layout al cargar. */
   aspect-ratio: 1;
@@ -179,7 +214,7 @@ body.game main {
 }
 
 #shape path {
-  fill: var(--brass);
+  fill: var(--accent);
 }
 
 #guess-form {
@@ -195,16 +230,21 @@ body.game main {
 #guess {
   width: 100%;
   padding: 0.65rem 0.8rem;
-  background: var(--ink-2);
-  border: 1px solid var(--brass-soft);
-  color: var(--paper);
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  color: var(--text);
   font: inherit;
 }
 
+#guess::placeholder {
+  color: var(--text-dim);
+  opacity: 1; /* Firefox lo atenúa por defecto y bajaría de 4,5:1 */
+}
+
 #guess:focus {
-  outline: 2px solid var(--brass);
+  outline: 2px solid var(--accent);
   outline-offset: -1px;
-  border-color: var(--brass);
+  border-color: var(--accent);
 }
 
 #suggestions {
@@ -216,8 +256,8 @@ body.game main {
   margin: 0;
   padding: 0;
   list-style: none;
-  background: var(--ink-2);
-  border: 1px solid var(--brass);
+  background: var(--surface);
+  border: 1.5px solid var(--accent);
   border-top: none;
   max-height: 14rem;
   overflow-y: auto;
@@ -229,30 +269,55 @@ body.game main {
   font-size: 0.85rem;
 }
 
-#suggestions li:hover,
+/* El ratón solo tiñe; .active (lo que enviará Enter) lleva el tratamiento de
+   cualquier activo. Texto claro sobre el tinte: el acento bajaría de 4,5:1. */
+#suggestions li:hover {
+  background: rgba(var(--accent-rgb), 0.15);
+}
+
 #suggestions li.active {
-  background: rgba(210, 161, 76, 0.15);
-  color: var(--brass);
+  background: var(--accent);
+  color: var(--bg);
 }
 
 button {
   font: inherit;
+  font-weight: 600;
+  font-stretch: 112%;
   padding: 0.65rem 1rem;
-  background: var(--ink-2);
-  border: 1px solid var(--brass-soft);
-  color: var(--brass);
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  color: var(--text);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 
 button:hover:not(:disabled) {
-  border-color: var(--brass);
-  background: rgba(210, 161, 76, 0.08);
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.08);
 }
 
-/* Toggles (aria-pressed): el estado activo se ve sin mirar el resto de la UI. */
-button[aria-pressed="true"] {
-  border-color: var(--brass);
+/* Acción destacada (enviar intento, jugar otra vez): acento en borde y texto,
+   hover invertido. */
+#btn-guess,
+#btn-again {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+#btn-guess:hover:not(:disabled),
+#btn-again:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* Toggles (aria-pressed): el estado activo se ve sin mirar el resto de la UI.
+   También en hover, o el botón parecería soltarse bajo el ratón. */
+button[aria-pressed="true"],
+button[aria-pressed="true"]:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
 }
 
 #attempts {
@@ -271,9 +336,11 @@ button[aria-pressed="true"] {
   align-items: center;
   gap: 0.7rem;
   padding: 0.5rem 0.8rem;
-  background: var(--ink-2);
-  border: 1px solid rgba(138, 111, 61, 0.5);
+  background: var(--surface);
+  border: 1.5px solid var(--line-soft);
   font-size: 0.82rem;
+  /* Sin monoespaciada: cifras de ancho fijo para que km y % no bailen. */
+  font-variant-numeric: tabular-nums;
   animation: li-in 180ms ease-out;
 }
 
@@ -287,7 +354,7 @@ button[aria-pressed="true"] {
 #attempts li::before {
   counter-increment: intento;
   content: counter(intento);
-  color: var(--paper-dim);
+  color: var(--text-dim);
   font-size: 0.7rem;
 }
 
@@ -297,12 +364,12 @@ button[aria-pressed="true"] {
 
 .g-km,
 .g-pct {
-  color: var(--paper-dim);
+  color: var(--text-dim);
   font-size: 0.75rem;
 }
 
 .g-dir {
-  color: var(--brass);
+  color: var(--accent);
   font-size: 1rem;
 }
 
@@ -316,8 +383,9 @@ button[aria-pressed="true"] {
 
 #verdict {
   margin: 0;
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 /* Vacío: fuera del flujo (sin hueco del gap) pero SIN display:none, que
@@ -338,13 +406,13 @@ button[aria-pressed="true"] {
 .mini-flag {
   height: 1em;
   vertical-align: -0.12em;
-  border: 1px solid rgba(236, 229, 211, 0.3);
+  border: 1px solid rgba(241, 239, 230, 0.3);
 }
 
 .flag-q {
   margin: 0 0 0.6rem;
   font-size: 0.85rem;
-  color: var(--paper-dim);
+  color: var(--text-dim);
 }
 
 #flag-round {
@@ -365,14 +433,17 @@ button[aria-pressed="true"] {
   gap: 0.35rem;
 }
 
+/* Nombres a peso y ancho de cuerpo: caben más letras en las dos líneas. */
 .flag-name {
   visibility: hidden;
   width: 100%;
   font-size: 0.72rem;
+  font-weight: 400;
+  font-stretch: 100%;
   line-height: 1.25;
   letter-spacing: 0.03em;
   text-align: center;
-  color: var(--paper-dim);
+  color: var(--text-dim);
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -429,8 +500,8 @@ button[aria-pressed="true"] {
 /* ——— Banderas ——— */
 
 #stage {
-  background: var(--ink-2);
-  border: 1px solid var(--brass-soft);
+  background: var(--surface);
+  border: 1.5px solid var(--line);
   padding: 0.6rem;
 }
 
@@ -462,12 +533,15 @@ button[aria-pressed="true"] {
   perspective: 700px; /* sin esto rotateX lee como aplastamiento 2D */
 }
 
+/* La última capa (--surface) es opaca: el panel nunca deja ver la bandera;
+   el velo claro encima aclara hacia abajo como antes. */
 .panel {
   background:
-    repeating-linear-gradient(135deg, rgba(210, 161, 76, 0.05) 0 6px, transparent 6px 12px),
-    linear-gradient(160deg, var(--ink-2), #17232f);
+    repeating-linear-gradient(135deg, rgba(var(--accent-rgb), 0.05) 0 6px, transparent 6px 12px),
+    linear-gradient(160deg, transparent, rgba(241, 239, 230, 0.04)),
+    var(--surface);
   /* separador dibujado SOBRE el panel opaco; un borde real dejaría ver bandera */
-  box-shadow: inset 0 0 0 1px rgba(210, 161, 76, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.22);
   backface-visibility: hidden;
 }
 
@@ -550,7 +624,7 @@ button[aria-pressed="true"] {
   }
 }
 
-/* Confeti (piezas animadas con WAAPI desde JS) */
+/* Confeti (piezas animadas con WAAPI desde JS; esquinas vivas como todo) */
 #confetti {
   position: fixed;
   inset: 0;
@@ -561,7 +635,6 @@ button[aria-pressed="true"] {
 
 #confetti span {
   position: absolute;
-  border-radius: 1px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -575,16 +648,20 @@ button[aria-pressed="true"] {
 /* ——— Viaje ——— */
 
 #map {
+  /* Tokens de mapa: locales, solo donde hay mapa (valores de la guía de ekain). */
+  --ocean: #16201c; /* mar y fondo del mapa */
+  --land: #3a4a42;
+  --border: #1e2925; /* fronteras */
   position: relative; /* ancla el botón "Centrar" */
-  background: #0e1822; /* océano */
-  border: 1px solid var(--brass-soft);
+  background: var(--ocean);
+  border: 1.5px solid var(--line);
   padding: 0.4rem;
   /* Reserva el alto (viewBox 960×620): sin salto de layout al cargar. El ratio
      debe actuar sobre el content-box (donde vive el svg), no sobre el border-box
      que impone el box-sizing global: si no, padding y borde añaden ~5px al llegar
-     el svg. content-box + width que descuenta padding (2×0.4rem) y borde (2×1px). */
+     el svg. content-box + width que descuenta padding (2×0.4rem) y borde (2×1.5px). */
   box-sizing: content-box;
-  width: calc(100% - 0.8rem - 2px);
+  width: calc(100% - 0.8rem - 3px);
   aspect-ratio: 960 / 620;
 }
 
@@ -602,14 +679,15 @@ button[aria-pressed="true"] {
   cursor: grabbing;
 }
 
+/* Overlay flotante sobre el mapa: fondo translúcido con desenfoque. */
 #btn-recenter {
   position: absolute;
   top: 0.6rem;
   right: 0.6rem;
   font-size: 0.72rem;
   padding: 0.3rem 0.6rem;
-  background: var(--ink-2);
-  opacity: 0.9;
+  background: rgba(30, 41, 37, 0.92);
+  backdrop-filter: blur(3px);
 }
 
 #btn-recenter[hidden] {
@@ -617,21 +695,22 @@ button[aria-pressed="true"] {
 }
 
 #map .country {
-  fill: #2b3a47;
-  stroke: rgba(138, 111, 61, 0.5);
+  fill: var(--land);
+  stroke: var(--border);
   stroke-width: 0.75;
   vector-effect: non-scaling-stroke;
 }
 
+/* Camino: acento atenuado, como antes el latón suave frente al latón del
+   destino. Al 60% sobre el mar da 3,1:1 contra él y 2,1:1 contra el destino. */
 #map .country.chain {
-  fill: var(--brass-soft);
+  fill: rgba(var(--accent-rgb), 0.6);
 }
 
 #map .country.neighbor {
-  fill: rgba(236, 229, 211, 0.42);
-  /* Línea oscura entre vecinos contiguos: sin ella, al compartir relleno pálido
-     parecen un solo país. */
-  stroke: rgba(20, 15, 8, 0.65);
+  fill: rgba(241, 239, 230, 0.42);
+  /* Frontera oscura más gruesa entre vecinos contiguos: sin ella, al compartir
+     relleno pálido parecen un solo país (3,3:1 contra el relleno). */
   stroke-width: 1;
 }
 
@@ -640,12 +719,12 @@ button[aria-pressed="true"] {
 }
 
 #map .country.b {
-  fill: var(--brass); /* destino */
+  fill: var(--accent); /* destino */
 }
 
 /* La punta actual: contorno claro, gane el color de relleno que gane. */
 #map .country.current {
-  stroke: var(--paper);
+  stroke: var(--text);
   stroke-width: 1.6;
 }
 
@@ -660,7 +739,7 @@ button[aria-pressed="true"] {
 }
 
 #route .arrow {
-  color: var(--paper-dim);
+  color: var(--text-dim);
 }
 
 #chain {
@@ -673,13 +752,15 @@ button[aria-pressed="true"] {
   align-items: center;
 }
 
+/* Chip de país: no es enlace, así que esquinas vivas (999px queda para las
+   pastillas de enlace). */
 .chip {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
   padding: 0.3rem 0.55rem;
-  background: var(--ink-2);
-  border: 1px solid rgba(138, 111, 61, 0.5);
+  background: var(--surface);
+  border: 1.5px solid var(--line-soft);
   font-size: 0.78rem;
   animation: li-in 180ms ease-out;
 }
@@ -689,12 +770,12 @@ button[aria-pressed="true"] {
 }
 
 .chip.b {
-  border-color: var(--brass);
+  border-color: var(--accent);
 }
 
 .chip.current {
-  border-color: var(--paper);
-  box-shadow: 0 0 0 1px var(--paper);
+  border-color: var(--text);
+  box-shadow: 0 0 0 1px var(--text);
 }
 
 #fails {
@@ -702,14 +783,18 @@ button[aria-pressed="true"] {
   align-items: center;
   gap: 0.4rem;
   font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  color: var(--paper-dim);
+  font-weight: 600;
+  font-stretch: 112%;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
 }
 
 .pip {
   width: 0.7rem;
   height: 0.7rem;
-  border: 1px solid var(--brass-soft);
+  border: 1.5px solid var(--line);
   border-radius: 50%;
 }
 
@@ -748,8 +833,8 @@ button[aria-pressed="true"] {
 .hint-shape {
   width: 6rem;
   height: 6rem;
-  background: var(--ink-2);
-  border: 1px solid var(--brass-soft);
+  background: var(--surface);
+  border: 1.5px solid var(--line);
   padding: 0.3rem;
 }
 
@@ -760,13 +845,13 @@ button[aria-pressed="true"] {
 }
 
 .hint-shape path {
-  fill: var(--brass);
+  fill: var(--accent);
 }
 
 #solution {
   margin: 0;
   font-size: 0.8rem;
-  color: var(--paper-dim);
+  color: var(--text-dim);
 }
 
 #solution:empty {

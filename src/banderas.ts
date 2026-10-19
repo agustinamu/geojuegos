@@ -204,7 +204,9 @@ function lose(): void {
   }, delay);
 }
 
-const COLORS = ['#d2a14c', '#ece5d3', '#7fbf7f', '#d47d6a', '#8a6f3d'];
+// Tokens de style.css (las piezas cuelgan del documento y heredan :root): el
+// confeti sigue a la paleta sin duplicar valores aquí.
+const COLORS = ['var(--accent)', 'var(--text)', 'var(--ok)', 'var(--bad)', 'var(--sun)'];
 
 // Confeti con WAAPI: dos ráfagas desde las esquinas inferiores de la bandera.
 function confeti(): void {
